@@ -4,6 +4,8 @@ import cors from 'cors';
 import connectDB from './config/database.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
+// Import models (will be used in routes)
+import { User, LeaveRequest } from './models/index.js';
 
 // Load environment variables
 dotenv.config();
