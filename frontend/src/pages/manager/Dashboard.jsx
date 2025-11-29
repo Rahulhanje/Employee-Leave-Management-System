@@ -17,6 +17,11 @@ const Dashboard = () => {
     dispatch(fetchManagerDashboard());
   }, [dispatch]);
 
+  // Debug: Log dashboard stats
+  useEffect(() => {
+    console.log('Manager Dashboard Stats:', dashboardStats);
+  }, [dashboardStats]);
+
   const statsCards = [
     {
       title: 'Pending Requests',
@@ -120,21 +125,21 @@ const Dashboard = () => {
           </motion.button>
         </div>
 
-        {/* Leave Type Distribution */}
-        {dashboardStats.leaveTypeDistribution && dashboardStats.leaveTypeDistribution.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mb-8"
-          >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <ChartBarIcon className="w-6 h-6 text-primary-600" />
-              Team Leave Analytics
-            </h2>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* Leave Type Distribution Pie Chart */}
+        {/* Team Leave Analytics - Always Show */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <ChartBarIcon className="w-6 h-6 text-primary-600" />
+            Team Leave Analytics
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Leave Type Distribution Pie Chart - Show if data exists */}
+            {dashboardStats.leaveTypeDistribution && dashboardStats.leaveTypeDistribution.length > 0 ? (
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Leave Type Distribution</h3>
                 <ResponsiveContainer width="100%" height={300}>
@@ -167,11 +172,20 @@ const Dashboard = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 flex items-center justify-center">
+                <div className="text-center py-12">
+                  <ChartBarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium">No leave data available yet</p>
+                  <p className="text-gray-400 text-sm mt-2">Leave distribution will appear here once requests are made</p>
+                </div>
+              </div>
+            )}
 
-              {/* Leave Status Bar Chart */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Leave Status Overview (30 Days)</h3>
-                <ResponsiveContainer width="100%" height={300}>
+            {/* Leave Status Bar Chart - Always Show */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Leave Status Overview (30 Days)</h3>
+              <ResponsiveContainer width="100%" height={300}>
                   <BarChart
                     data={[
                       { 
@@ -201,35 +215,36 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Leave Type Horizontal Bar Chart */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Detailed Leave Type Breakdown</h3>
-              <div className="space-y-4">
-                {dashboardStats.leaveTypeDistribution.map((item, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="w-32 text-sm font-semibold text-gray-700 capitalize">{item._id || item.type}</div>
-                    <div className="flex-1">
-                      <div className="h-8 bg-gray-100 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(item.count / Math.max(...dashboardStats.leaveTypeDistribution.map(i => i.count))) * 100}%` }}
-                          transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
-                          className={`h-full ${
-                            item._id === 'sick' ? 'bg-blue-500' :
-                            item._id === 'casual' ? 'bg-purple-500' :
-                            'bg-indigo-500'
-                          } flex items-center justify-end pr-3`}
-                        >
-                          <span className="text-white font-bold text-sm">{item.count}</span>
-                        </motion.div>
+            {/* Leave Type Horizontal Bar Chart - Show if data exists */}
+            {dashboardStats.leaveTypeDistribution && dashboardStats.leaveTypeDistribution.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Detailed Leave Type Breakdown</h3>
+                <div className="space-y-4">
+                  {dashboardStats.leaveTypeDistribution.map((item, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                      <div className="w-32 text-sm font-semibold text-gray-700 capitalize">{item._id || item.type}</div>
+                      <div className="flex-1">
+                        <div className="h-8 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(item.count / Math.max(...dashboardStats.leaveTypeDistribution.map(i => i.count))) * 100}%` }}
+                            transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
+                            className={`h-full ${
+                              item._id === 'sick' ? 'bg-blue-500' :
+                              item._id === 'casual' ? 'bg-purple-500' :
+                              'bg-indigo-500'
+                            } flex items-center justify-end pr-3`}
+                          >
+                            <span className="text-white font-bold text-sm">{item.count}</span>
+                          </motion.div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            )}
+        </motion.div>
       </div>
     </div>
     </>
