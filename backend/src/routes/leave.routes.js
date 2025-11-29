@@ -51,13 +51,6 @@ router.get('/my-requests', authMiddleware, getMyLeaveRequests);
 router.get('/balance', authMiddleware, getLeaveBalance);
 
 /**
- * @route   DELETE /api/leaves/:id
- * @desc    Cancel a pending leave request
- * @access  Private (Employee - own requests only)
- */
-router.delete('/:id', authMiddleware, cancelLeaveRequest);
-
-/**
  * ==========================================================
  * Manager Routes - Leave Approval & Management
  * ==========================================================
@@ -97,5 +90,12 @@ router.put('/:id/approve', authMiddleware, roleMiddleware('manager'), approveLea
  * @access  Private (Manager only)
  */
 router.put('/:id/reject', authMiddleware, roleMiddleware('manager'), rejectLeaveValidation, validate, rejectLeave);
+
+/**
+ * @route   DELETE /api/leaves/:id
+ * @desc    Cancel a pending leave request
+ * @access  Private (Employee - own requests only)
+ */
+router.delete('/:id', authMiddleware, cancelLeaveRequest);
 
 export default router;
