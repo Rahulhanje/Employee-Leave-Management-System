@@ -8,6 +8,7 @@ import notFound from './middleware/notFound.js';
 import { User, LeaveRequest } from './models/index.js';
 // Import routes
 import authRoutes from './routes/auth.routes.js';
+import leaveRoutes from './routes/leave.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -41,7 +42,7 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/leaves', leaveRoutes); // Coming in next task
+app.use('/api/leaves', leaveRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFound);
