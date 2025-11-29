@@ -122,8 +122,8 @@ export const approveLeave = async (req, res) => {
       );
     }
 
-    // Find the employee
-    const employee = await User.findById(leaveRequest.user);
+    // Find the employee using userId field (not virtual 'user')
+    const employee = await User.findById(leaveRequest.userId);
 
     if (!employee) {
       return errorResponse(res, 404, 'Employee not found');
