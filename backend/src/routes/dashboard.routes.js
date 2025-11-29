@@ -3,8 +3,8 @@ import {
   getEmployeeDashboard,
   getManagerDashboard,
 } from '../controllers/dashboard.controller.js';
-import authMiddleware from '../middlewares/auth.middleware.js';
-import roleMiddleware from '../middlewares/role.middleware.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import roleMiddleware from '../middleware/roleMiddleware.js';
 
 const router = express.Router();
 
