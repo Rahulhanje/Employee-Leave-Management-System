@@ -33,7 +33,11 @@ export const getEmployeeDashboard = async (req, res) => {
 
     // Get user's leave balance
     const user = await User.findById(userId).select('leaveBalance');
-    const leaveBalance = user.leaveBalance;
+    const leaveBalance = {
+      sick: user.leaveBalance.sickLeave || 0,
+      casual: user.leaveBalance.casualLeave || 0,
+      vacation: user.leaveBalance.vacationLeave || 0,
+    };
 
     // Get upcoming leaves (approved leaves with future start dates)
     const today = new Date();
@@ -52,7 +56,7 @@ export const getEmployeeDashboard = async (req, res) => {
       pendingRequests,
       approvedRequests,
       rejectedRequests,
-      leaveBalance,
+      balance: leaveBalance,
       upcomingLeaves,
     };
 
@@ -88,19 +92,49 @@ export const getManagerDashboard = async (req, res) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     // Get approved requests in last 30 days
+    // Use both approvedAt and updatedAt as fallback for older records
     const approved30Days = await LeaveRequest.countDocuments({
       status: 'approved',
-      updatedAt: { $gte: thirtyDaysAgo },
+      $or: [
+        { approvedAt: { $gte: thirtyDaysAgo } },
+        { approvedAt: null, updatedAt: { $gte: thirtyDaysAgo } }
+      ]
     });
 
     // Get rejected requests in last 30 days
     const rejected30Days = await LeaveRequest.countDocuments({
       status: 'rejected',
-      updatedAt: { $gte: thirtyDaysAgo },
+      $or: [
+        { approvedAt: { $gte: thirtyDaysAgo } },
+        { approvedAt: null, updatedAt: { $gte: thirtyDaysAgo } }
+      ]
+    });
+
+    // Debug: Get total approved and rejected (all time)
+    const totalApproved = await LeaveRequest.countDocuments({ status: 'approved' });
+    const totalRejected = await LeaveRequest.countDocuments({ status: 'rejected' });
+
+    // Debug: Check sample records without triggering virtuals
+    const sampleApprovedData = await LeaveRequest.findOne({ status: 'approved' })
+      .select('status approvedAt createdAt updatedAt')
+      .lean(); // Use lean() to get plain objects without virtuals
+    const sampleRejectedData = await LeaveRequest.findOne({ status: 'rejected' })
+      .select('status approvedAt createdAt updatedAt')
+      .lean();
+
+    console.log('Manager Dashboard Stats:', {
+      pendingCount: pendingRequests.length,
+      approved30Days,
+      rejected30Days,
+      totalApproved,
+      totalRejected,
+      thirtyDaysAgo: thirtyDaysAgo.toISOString(),
+      sampleApproved: sampleApprovedData,
+      sampleRejected: sampleRejectedData,
     });
 
     // Get leave type statistics using MongoDB aggregation
-    const leaveTypeStats = await LeaveRequest.aggregate([
+    const leaveTypeDistribution = await LeaveRequest.aggregate([
       {
         $group: {
           _id: '$leaveType',
@@ -117,26 +151,16 @@ export const getManagerDashboard = async (req, res) => {
         },
       },
       {
-        $project: {
-          _id: 0,
-          leaveType: '$_id',
-          totalRequests: '$count',
-          approved: 1,
-          pending: 1,
-          rejected: 1,
-        },
-      },
-      {
-        $sort: { totalRequests: -1 },
+        $sort: { count: -1 },
       },
     ]);
 
     const dashboardData = {
       pendingRequests,
       pendingCount: pendingRequests.length,
-      approved30Days,
-      rejected30Days,
-      leaveTypeStats,
+      approvedLast30Days: approved30Days,
+      rejectedLast30Days: rejected30Days,
+      leaveTypeDistribution,
     };
 
     return successResponse(

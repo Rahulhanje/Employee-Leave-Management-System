@@ -93,6 +93,13 @@ leaveRequestSchema.virtual('user', {
  * Returns readable date strings
  */
 leaveRequestSchema.virtual('formattedDates').get(function () {
+  if (!this.startDate || !this.endDate) {
+    return {
+      startDate: 'N/A',
+      endDate: 'N/A',
+      duration: 'N/A'
+    };
+  }
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
   return {
     startDate: this.startDate.toLocaleDateString('en-US', options),

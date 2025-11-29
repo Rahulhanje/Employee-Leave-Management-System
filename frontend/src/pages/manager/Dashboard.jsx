@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ClockIcon, CheckCircleIcon, XCircleIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
 import { fetchManagerDashboard } from '../../store/managerSlice';
+import Navbar from '../../components/Navbar';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -14,6 +16,11 @@ const Dashboard = () => {
   useEffect(() => {
     dispatch(fetchManagerDashboard());
   }, [dispatch]);
+
+  // Debug: Log dashboard stats
+  useEffect(() => {
+    console.log('Manager Dashboard Stats:', dashboardStats);
+  }, [dashboardStats]);
 
   const statsCards = [
     {
@@ -54,16 +61,18 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Manager Dashboard 👨‍💼</h1>
-          <p className="text-gray-600">Welcome back, {user?.name}!</p>
-        </motion.div>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Manager Dashboard 👨‍💼</h1>
+            <p className="text-gray-600">Welcome back, {user?.name}!</p>
+          </motion.div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {statsCards.map((stat, index) => (
             <motion.div
               key={stat.title}
@@ -116,45 +125,129 @@ const Dashboard = () => {
           </motion.button>
         </div>
 
-        {/* Leave Type Distribution */}
-        {dashboardStats.leaveTypeDistribution && dashboardStats.leaveTypeDistribution.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100"
-          >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <ChartBarIcon className="w-6 h-6 text-primary-600" />
-              Leave Type Distribution
-            </h2>
-            <div className="space-y-4">
-              {dashboardStats.leaveTypeDistribution.map((item, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  <div className="w-32 text-sm font-semibold text-gray-700 capitalize">{item._id || item.type}</div>
-                  <div className="flex-1">
-                    <div className="h-8 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(item.count / Math.max(...dashboardStats.leaveTypeDistribution.map(i => i.count))) * 100}%` }}
-                        transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
-                        className={`h-full ${
-                          item._id === 'sick' ? 'bg-blue-500' :
-                          item._id === 'casual' ? 'bg-purple-500' :
-                          'bg-indigo-500'
-                        } flex items-center justify-end pr-3`}
-                      >
-                        <span className="text-white font-bold text-sm">{item.count}</span>
-                      </motion.div>
-                    </div>
-                  </div>
+        {/* Team Leave Analytics - Always Show */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <ChartBarIcon className="w-6 h-6 text-primary-600" />
+            Team Leave Analytics
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Leave Type Distribution Pie Chart - Show if data exists */}
+            {dashboardStats.leaveTypeDistribution && dashboardStats.leaveTypeDistribution.length > 0 ? (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Leave Type Distribution</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={dashboardStats.leaveTypeDistribution.map(item => ({
+                        name: item._id ? item._id.charAt(0).toUpperCase() + item._id.slice(1) : 'Other',
+                        value: item.count,
+                        color: item._id === 'sick' ? '#3b82f6' : 
+                               item._id === 'casual' ? '#8b5cf6' : '#6366f1'
+                      }))}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {dashboardStats.leaveTypeDistribution.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry._id === 'sick' ? '#3b82f6' : 
+                                entry._id === 'casual' ? '#8b5cf6' : '#6366f1'} 
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 flex items-center justify-center">
+                <div className="text-center py-12">
+                  <ChartBarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium">No leave data available yet</p>
+                  <p className="text-gray-400 text-sm mt-2">Leave distribution will appear here once requests are made</p>
                 </div>
-              ))}
+              </div>
+            )}
+
+            {/* Leave Status Bar Chart - Always Show */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Leave Status Overview (30 Days)</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={[
+                      { 
+                        name: 'Pending', 
+                        count: dashboardStats.pendingCount || 0,
+                        fill: '#eab308'
+                      },
+                      { 
+                        name: 'Approved', 
+                        count: dashboardStats.approvedLast30Days || 0,
+                        fill: '#22c55e'
+                      },
+                      { 
+                        name: 'Rejected', 
+                        count: dashboardStats.rejectedLast30Days || 0,
+                        fill: '#ef4444'
+                      },
+                    ]}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="count" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </motion.div>
-        )}
+
+            {/* Leave Type Horizontal Bar Chart - Show if data exists */}
+            {dashboardStats.leaveTypeDistribution && dashboardStats.leaveTypeDistribution.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Detailed Leave Type Breakdown</h3>
+                <div className="space-y-4">
+                  {dashboardStats.leaveTypeDistribution.map((item, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                      <div className="w-32 text-sm font-semibold text-gray-700 capitalize">{item._id || item.type}</div>
+                      <div className="flex-1">
+                        <div className="h-8 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(item.count / Math.max(...dashboardStats.leaveTypeDistribution.map(i => i.count))) * 100}%` }}
+                            transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
+                            className={`h-full ${
+                              item._id === 'sick' ? 'bg-blue-500' :
+                              item._id === 'casual' ? 'bg-purple-500' :
+                              'bg-indigo-500'
+                            } flex items-center justify-end pr-3`}
+                          >
+                            <span className="text-white font-bold text-sm">{item.count}</span>
+                          </motion.div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+        </motion.div>
       </div>
     </div>
+    </>
   );
 };
 

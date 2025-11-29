@@ -53,7 +53,13 @@ export const approveRequest = createAsyncThunk(
   'manager/approve',
   async ({ leaveId, comment }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/leaves/${leaveId}/approve`, { comment });
+      // Only send managerComment if it has at least 5 characters (validator requirement)
+      const payload = {};
+      if (comment && comment.trim().length >= 5) {
+        payload.managerComment = comment.trim();
+      }
+      
+      const response = await axiosInstance.put(`/leaves/${leaveId}/approve`, payload);
       toast.success('Leave request approved!');
       return { leaveId, data: response.data.data };
     } catch (error) {
@@ -69,7 +75,13 @@ export const rejectRequest = createAsyncThunk(
   'manager/reject',
   async ({ leaveId, comment }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/leaves/${leaveId}/reject`, { comment });
+      // Only send managerComment if it has at least 5 characters (validator requirement)
+      const payload = {};
+      if (comment && comment.trim().length >= 5) {
+        payload.managerComment = comment.trim();
+      }
+      
+      const response = await axiosInstance.put(`/leaves/${leaveId}/reject`, payload);
       toast.success('Leave request rejected!');
       return { leaveId, data: response.data.data };
     } catch (error) {
@@ -109,7 +121,13 @@ const managerSlice = createSlice({
       })
       .addCase(fetchManagerDashboard.fulfilled, (state, action) => {
         state.loading = false;
-        state.dashboardStats = action.payload;
+        console.log('Manager Dashboard API Response:', action.payload);
+        state.dashboardStats = {
+          pendingCount: action.payload.pendingCount || 0,
+          approvedLast30Days: action.payload.approvedLast30Days || 0,
+          rejectedLast30Days: action.payload.rejectedLast30Days || 0,
+          leaveTypeDistribution: action.payload.leaveTypeDistribution || [],
+        };
       })
       .addCase(fetchManagerDashboard.rejected, (state, action) => {
         state.loading = false;
