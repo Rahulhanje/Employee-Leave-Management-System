@@ -10,8 +10,10 @@ import {
   PlusCircleIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { fetchEmployeeDashboard } from '../../store/leaveSlice';
 import LeaveCard from '../../components/LeaveCard';
+import Navbar from '../../components/Navbar';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -68,19 +70,21 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name || 'Employee'}! 👋
-          </h1>
-          <p className="text-gray-600">Here's your leave management overview</p>
-        </motion.div>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Welcome back, {user?.name || 'Employee'}! 👋
+            </h1>
+            <p className="text-gray-600">Here's your leave management overview</p>
+          </motion.div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -159,11 +163,87 @@ const Dashboard = () => {
           </button>
         </motion.div>
 
-        {/* Upcoming Leaves */}
+        {/* Charts Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Leave Analytics</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Leave Balance Pie Chart */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Leave Balance Distribution</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Sick Leave', value: balance.sick || 0, color: '#3b82f6' },
+                      { name: 'Casual Leave', value: balance.casual || 0, color: '#8b5cf6' },
+                      { name: 'Vacation Leave', value: balance.vacation || 0, color: '#6366f1' },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {[
+                      { name: 'Sick Leave', value: balance.sick || 0, color: '#3b82f6' },
+                      { name: 'Casual Leave', value: balance.casual || 0, color: '#8b5cf6' },
+                      { name: 'Vacation Leave', value: balance.vacation || 0, color: '#6366f1' },
+                    ].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Leave Status Bar Chart */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Leave Request Status</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={[
+                    { 
+                      name: 'Pending', 
+                      count: dashboardStats.pendingRequests || 0,
+                      fill: '#eab308'
+                    },
+                    { 
+                      name: 'Approved', 
+                      count: dashboardStats.approvedRequests || 0,
+                      fill: '#22c55e'
+                    },
+                    { 
+                      name: 'Rejected', 
+                      count: dashboardStats.rejectedRequests || 0,
+                      fill: '#ef4444'
+                    },
+                  ]}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Upcoming Leaves */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Upcoming Leaves</h2>
           {dashboardStats.upcomingLeaves && dashboardStats.upcomingLeaves.length > 0 ? (
@@ -182,6 +262,7 @@ const Dashboard = () => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 
