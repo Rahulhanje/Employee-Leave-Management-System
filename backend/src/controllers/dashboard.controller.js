@@ -114,9 +114,13 @@ export const getManagerDashboard = async (req, res) => {
     const totalApproved = await LeaveRequest.countDocuments({ status: 'approved' });
     const totalRejected = await LeaveRequest.countDocuments({ status: 'rejected' });
 
-    // Debug: Get sample approved/rejected records to check approvedAt field
-    const sampleApproved = await LeaveRequest.findOne({ status: 'approved' }).select('status approvedAt createdAt updatedAt');
-    const sampleRejected = await LeaveRequest.findOne({ status: 'rejected' }).select('status approvedAt createdAt updatedAt');
+    // Debug: Check sample records without triggering virtuals
+    const sampleApprovedData = await LeaveRequest.findOne({ status: 'approved' })
+      .select('status approvedAt createdAt updatedAt')
+      .lean(); // Use lean() to get plain objects without virtuals
+    const sampleRejectedData = await LeaveRequest.findOne({ status: 'rejected' })
+      .select('status approvedAt createdAt updatedAt')
+      .lean();
 
     console.log('Manager Dashboard Stats:', {
       pendingCount: pendingRequests.length,
@@ -125,8 +129,8 @@ export const getManagerDashboard = async (req, res) => {
       totalApproved,
       totalRejected,
       thirtyDaysAgo: thirtyDaysAgo.toISOString(),
-      sampleApproved,
-      sampleRejected,
+      sampleApproved: sampleApprovedData,
+      sampleRejected: sampleRejectedData,
     });
 
     // Get leave type statistics using MongoDB aggregation
