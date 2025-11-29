@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 
 /**
  * Validation rules for authentication endpoints
@@ -61,7 +61,6 @@ export const loginValidation = [
  * Can be used as middleware after validation rules
  */
 export const validate = (req, res, next) => {
-  const { validationResult } = require('express-validator');
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
