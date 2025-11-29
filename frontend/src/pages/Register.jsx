@@ -1,11 +1,119 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { UserIcon, EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { registerUser, clearError } from '../store/authSlice';
 
 const Register = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: 'employee',
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboardRoute = user.role === 'manager' ? '/manager/dashboard' : '/employee/dashboard';
+      navigate(dashboardRoute, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  // Clear errors when component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error for this field
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    // Name validation
+    if (!formData.name || formData.name.trim() === '') {
+      errors.name = 'Full name is required';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    }
+
+    // Email validation
+    if (!formData.email) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+
+    // Password validation
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+
+    // Confirm password validation
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+
+    // Terms validation
+    if (!acceptedTerms) {
+      errors.terms = 'You must accept the terms and conditions';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
+    // Prepare data for API (exclude confirmPassword)
+    const { confirmPassword, ...registrationData } = formData;
+
+    // Dispatch register action
+    const result = await dispatch(registerUser(registrationData));
+    
+    // Navigate on success
+    if (registerUser.fulfilled.match(result)) {
+      const dashboardRoute = result.payload.user.role === 'manager' 
+        ? '/manager/dashboard' 
+        : '/employee/dashboard';
+      navigate(dashboardRoute, { replace: true });
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -49,10 +157,10 @@ const Register = () => {
           transition={{ delay: 0.3 }}
           className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 space-y-6 border border-white/20"
         >
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Full Name Input */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                 Full Name
               </label>
               <div className="relative">
@@ -60,14 +168,20 @@ const Register = () => {
                   <UserIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="fullName"
-                  name="fullName"
+                  id="name"
+                  name="name"
                   type="text"
-                  required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 pr-3 py-3 border ${
+                    formErrors.name ? 'border-red-500' : 'border-gray-300'
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50`}
                   placeholder="John Doe"
                 />
               </div>
+              {formErrors.name && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+              )}
             </div>
 
             {/* Email Input */}
@@ -84,11 +198,17 @@ const Register = () => {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 pr-3 py-3 border ${
+                    formErrors.email ? 'border-red-500' : 'border-gray-300'
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50`}
                   placeholder="you@example.com"
                 />
               </div>
+              {formErrors.email && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
+              )}
             </div>
 
             {/* Password Input */}
@@ -105,8 +225,11 @@ const Register = () => {
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  required
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 pr-10 py-3 border ${
+                    formErrors.password ? 'border-red-500' : 'border-gray-300'
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50`}
                   placeholder="••••••••"
                 />
                 <button
@@ -121,6 +244,9 @@ const Register = () => {
                   )}
                 </button>
               </div>
+              {formErrors.password && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+              )}
             </div>
 
             {/* Confirm Password Input */}
@@ -137,8 +263,11 @@ const Register = () => {
                   name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  required
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 pr-10 py-3 border ${
+                    formErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                  } rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50`}
                   placeholder="••••••••"
                 />
                 <button
@@ -153,6 +282,9 @@ const Register = () => {
                   )}
                 </button>
               </div>
+              {formErrors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
+              )}
             </div>
 
             {/* Role Selection */}
@@ -167,6 +299,8 @@ const Register = () => {
                 <select
                   id="role"
                   name="role"
+                  value={formData.role}
+                  onChange={handleChange}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 appearance-none cursor-pointer"
                 >
                   <option value="employee">Employee</option>
@@ -181,33 +315,77 @@ const Register = () => {
             </div>
 
             {/* Terms and Conditions */}
-            <div className="flex items-start">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer mt-1"
-              />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-700 cursor-pointer">
-                I agree to the{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500 font-medium">
-                  Terms and Conditions
-                </a>{' '}
-                and{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500 font-medium">
-                  Privacy Policy
-                </a>
-              </label>
+            <div>
+              <div className="flex items-start">
+                <input
+                  id="terms"
+                  name="terms"
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => {
+                    setAcceptedTerms(e.target.checked);
+                    if (formErrors.terms) {
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        terms: '',
+                      }));
+                    }
+                  }}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer mt-1"
+                />
+                <label htmlFor="terms" className="ml-2 block text-sm text-gray-700 cursor-pointer">
+                  I agree to the{' '}
+                  <a href="#" className="text-primary-600 hover:text-primary-500 font-medium">
+                    Terms and Conditions
+                  </a>{' '}
+                  and{' '}
+                  <a href="#" className="text-primary-600 hover:text-primary-500 font-medium">
+                    Privacy Policy
+                  </a>
+                </label>
+              </div>
+              {formErrors.terms && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.terms}</p>
+              )}
             </div>
 
             {/* Submit Button */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+              disabled={loading}
+              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 ${
+                loading ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
             >
-              Create your account
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Creating account...
+                </>
+              ) : (
+                'Create your account'
+              )}
             </motion.button>
           </form>
 
