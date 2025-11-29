@@ -9,6 +9,11 @@ import EmployeeDashboard from '../pages/EmployeeDashboard';
 import ManagerDashboard from '../pages/ManagerDashboard';
 import NotFound from '../pages/NotFound';
 
+// Employee Pages
+import Dashboard from '../pages/employee/Dashboard';
+import ApplyLeave from '../pages/employee/ApplyLeave';
+import MyRequests from '../pages/employee/MyRequests';
+
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -62,7 +67,23 @@ const AppRouter = () => {
         path="/employee/dashboard"
         element={
           <ProtectedRoute allowedRoles={['employee']}>
-            <EmployeeDashboard />
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employee/apply-leave"
+        element={
+          <ProtectedRoute allowedRoles={['employee']}>
+            <ApplyLeave />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employee/my-requests"
+        element={
+          <ProtectedRoute allowedRoles={['employee']}>
+            <MyRequests />
           </ProtectedRoute>
         }
       />
