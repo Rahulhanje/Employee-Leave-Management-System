@@ -53,9 +53,13 @@ export const approveRequest = createAsyncThunk(
   'manager/approve',
   async ({ leaveId, comment }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/leaves/${leaveId}/approve`, { 
-        managerComment: comment 
-      });
+      // Only send managerComment if it has at least 5 characters (validator requirement)
+      const payload = {};
+      if (comment && comment.trim().length >= 5) {
+        payload.managerComment = comment.trim();
+      }
+      
+      const response = await axiosInstance.put(`/leaves/${leaveId}/approve`, payload);
       toast.success('Leave request approved!');
       return { leaveId, data: response.data.data };
     } catch (error) {
@@ -71,9 +75,13 @@ export const rejectRequest = createAsyncThunk(
   'manager/reject',
   async ({ leaveId, comment }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/leaves/${leaveId}/reject`, { 
-        managerComment: comment 
-      });
+      // Only send managerComment if it has at least 5 characters (validator requirement)
+      const payload = {};
+      if (comment && comment.trim().length >= 5) {
+        payload.managerComment = comment.trim();
+      }
+      
+      const response = await axiosInstance.put(`/leaves/${leaveId}/reject`, payload);
       toast.success('Leave request rejected!');
       return { leaveId, data: response.data.data };
     } catch (error) {
