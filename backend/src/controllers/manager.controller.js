@@ -1,6 +1,6 @@
-import LeaveRequest from '../models/LeaveRequest.js';
-import User from '../models/User.js';
-import { sendSuccess, sendError } from '../utils/response.js';
+import LeaveRequest from '../models/leaveRequest.model.js';
+import User from '../models/user.model.js';
+import { successResponse, errorResponse } from '../utils/response.js';
 
 /**
  * @desc    Get all pending leave requests
@@ -15,13 +15,13 @@ export const getPendingLeaves = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    return sendSuccess(res, 200, 'Pending leave requests retrieved successfully', {
+    return successResponse(res, 200, 'Pending leave requests retrieved successfully', {
       leaves: pendingLeaves,
       total: pendingLeaves.length
     });
   } catch (error) {
     console.error('Error fetching pending leaves:', error);
-    return sendError(res, 500, 'Internal server error');
+    return errorResponse(res, 500, 'Internal server error');
   }
 };
 
@@ -80,7 +80,7 @@ export const getAllLeaves = async (req, res) => {
     // Get total count for pagination
     const total = await LeaveRequest.countDocuments(query);
 
-    return sendSuccess(res, 200, 'Leave requests retrieved successfully', {
+    return successResponse(res, 200, 'Leave requests retrieved successfully', {
       leaves,
       pagination: {
         total,
@@ -91,7 +91,7 @@ export const getAllLeaves = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching all leaves:', error);
-    return sendError(res, 500, 'Internal server error');
+    return errorResponse(res, 500, 'Internal server error');
   }
 };
 
@@ -110,12 +110,12 @@ export const approveLeave = async (req, res) => {
     const leaveRequest = await LeaveRequest.findById(id);
 
     if (!leaveRequest) {
-      return sendError(res, 404, 'Leave request not found');
+      return errorResponse(res, 404, 'Leave request not found');
     }
 
     // Check if already processed
     if (leaveRequest.status !== 'pending') {
-      return sendError(
+      return errorResponse(
         res,
         400,
         `Cannot approve leave request with status: ${leaveRequest.status}. Only pending requests can be approved.`
@@ -126,7 +126,7 @@ export const approveLeave = async (req, res) => {
     const employee = await User.findById(leaveRequest.user);
 
     if (!employee) {
-      return sendError(res, 404, 'Employee not found');
+      return errorResponse(res, 404, 'Employee not found');
     }
 
     // Determine the leave type field name
@@ -136,7 +136,7 @@ export const approveLeave = async (req, res) => {
     const availableBalance = employee.leaveBalance[leaveTypeField];
 
     if (availableBalance < leaveRequest.totalDays) {
-      return sendError(
+      return errorResponse(
         res,
         400,
         `Cannot approve leave. Insufficient ${leaveRequest.leaveType} leave balance. ` +
@@ -163,7 +163,7 @@ export const approveLeave = async (req, res) => {
     await leaveRequest.populate('user', 'name email');
     await leaveRequest.populate('approvedBy', 'name email');
 
-    return sendSuccess(res, 200, 'Leave request approved successfully', {
+    return successResponse(res, 200, 'Leave request approved successfully', {
       leaveRequest: leaveRequest.toObject(),
       updatedBalance: {
         [leaveTypeField]: employee.leaveBalance[leaveTypeField]
@@ -171,7 +171,7 @@ export const approveLeave = async (req, res) => {
     });
   } catch (error) {
     console.error('Error approving leave:', error);
-    return sendError(res, 500, 'Internal server error');
+    return errorResponse(res, 500, 'Internal server error');
   }
 };
 
@@ -190,12 +190,12 @@ export const rejectLeave = async (req, res) => {
     const leaveRequest = await LeaveRequest.findById(id);
 
     if (!leaveRequest) {
-      return sendError(res, 404, 'Leave request not found');
+      return errorResponse(res, 404, 'Leave request not found');
     }
 
     // Check if already processed
     if (leaveRequest.status !== 'pending') {
-      return sendError(
+      return errorResponse(
         res,
         400,
         `Cannot reject leave request with status: ${leaveRequest.status}. Only pending requests can be rejected.`
@@ -219,11 +219,11 @@ export const rejectLeave = async (req, res) => {
     await leaveRequest.populate('user', 'name email');
     await leaveRequest.populate('approvedBy', 'name email');
 
-    return sendSuccess(res, 200, 'Leave request rejected successfully', {
+    return successResponse(res, 200, 'Leave request rejected successfully', {
       leaveRequest: leaveRequest.toObject()
     });
   } catch (error) {
     console.error('Error rejecting leave:', error);
-    return sendError(res, 500, 'Internal server error');
+    return errorResponse(res, 500, 'Internal server error');
   }
 };
