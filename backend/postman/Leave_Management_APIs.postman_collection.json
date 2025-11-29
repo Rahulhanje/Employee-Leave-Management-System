@@ -1,0 +1,610 @@
+{
+  "info": {
+    "name": "Leave Management - Employee APIs",
+    "description": "Complete collection for testing employee leave management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "leave_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "    console.log('Token saved:', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Employee\",\n  \"email\": \"john.employee@test.com\",\n  \"password\": \"Employee123\",\n  \"role\": \"employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new employee account. Token is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "    console.log('Token saved:', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.employee@test.com\",\n  \"password\": \"Employee123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login with employee credentials. Token is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Get current user profile and leave balance"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Leave Management",
+      "item": [
+        {
+          "name": "Apply Leave - Sick",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('leave_id', jsonData.data.leaveRequest.id);",
+                  "    console.log('Leave ID saved:', jsonData.data.leaveRequest.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"sick\",\n  \"startDate\": \"2025-12-01\",\n  \"endDate\": \"2025-12-03\",\n  \"reason\": \"Medical appointment and recovery needed for health checkup\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Apply for sick leave. Leave ID is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Leave - Casual",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"casual\",\n  \"startDate\": \"2025-12-10\",\n  \"endDate\": \"2025-12-11\",\n  \"reason\": \"Personal work that needs immediate attention and completion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Apply for casual leave"
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Leave - Vacation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"vacation\",\n  \"startDate\": \"2025-12-20\",\n  \"endDate\": \"2025-12-25\",\n  \"reason\": \"Family vacation trip planned for holidays and quality time together\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Apply for vacation leave"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Leave Requests - All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/my-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "my-requests"
+              ]
+            },
+            "description": "Get all leave requests for the logged-in employee"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Leave Requests - Pending",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/my-requests?status=pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "my-requests"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            },
+            "description": "Get only pending leave requests"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Leave Requests - Approved",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/my-requests?status=approved",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "my-requests"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "approved"
+                }
+              ]
+            },
+            "description": "Get only approved leave requests"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Leave Requests - Filtered",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/my-requests?status=pending&leaveType=sick&page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "my-requests"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                },
+                {
+                  "key": "leaveType",
+                  "value": "sick"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get filtered leave requests with pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Leave Requests - Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/my-requests?startDate=2025-12-01&endDate=2025-12-31",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "my-requests"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                }
+              ]
+            },
+            "description": "Get leave requests within a date range"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Leave Balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/balance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "balance"
+              ]
+            },
+            "description": "Get detailed leave balance with used/pending/available breakdown"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Leave Request",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/{{leave_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "{{leave_id}}"
+              ]
+            },
+            "description": "Cancel a pending leave request. Uses saved leave_id from previous request."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Apply Leave - Past Date",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"sick\",\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-01-03\",\n  \"reason\": \"Testing past date validation for error handling\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Test past date validation - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Leave - Invalid Date Range",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"sick\",\n  \"startDate\": \"2025-12-10\",\n  \"endDate\": \"2025-12-05\",\n  \"reason\": \"Testing invalid date range validation for error handling\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Test invalid date range - end before start - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Leave - Short Reason",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"sick\",\n  \"startDate\": \"2025-12-01\",\n  \"endDate\": \"2025-12-03\",\n  \"reason\": \"Sick\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Test reason length validation - should fail (min 10 chars)"
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Leave - Invalid Type",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"medical\",\n  \"startDate\": \"2025-12-01\",\n  \"endDate\": \"2025-12-03\",\n  \"reason\": \"Testing invalid leave type validation for error handling\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Test invalid leave type - should fail (must be sick/casual/vacation)"
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Leave - Missing Fields",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"sick\",\n  \"startDate\": \"2025-12-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Test missing required fields - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Leave - Invalid ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/invalid_id_12345",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "invalid_id_12345"
+              ]
+            },
+            "description": "Test invalid leave ID - should fail with 404"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Leave Balance - No Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/balance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "balance"
+              ]
+            },
+            "description": "Test unauthorized access - should fail with 401"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
