@@ -94,13 +94,19 @@ export const getManagerDashboard = async (req, res) => {
     // Get approved requests in last 30 days
     const approved30Days = await LeaveRequest.countDocuments({
       status: 'approved',
-      updatedAt: { $gte: thirtyDaysAgo },
+      approvedAt: { $gte: thirtyDaysAgo },
     });
 
     // Get rejected requests in last 30 days
     const rejected30Days = await LeaveRequest.countDocuments({
       status: 'rejected',
-      updatedAt: { $gte: thirtyDaysAgo },
+      approvedAt: { $gte: thirtyDaysAgo },
+    });
+
+    console.log('Manager Dashboard Stats:', {
+      pendingCount: pendingRequests.length,
+      approved30Days,
+      rejected30Days,
     });
 
     // Get leave type statistics using MongoDB aggregation

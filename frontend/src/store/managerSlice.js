@@ -121,7 +121,13 @@ const managerSlice = createSlice({
       })
       .addCase(fetchManagerDashboard.fulfilled, (state, action) => {
         state.loading = false;
-        state.dashboardStats = action.payload;
+        console.log('Manager Dashboard API Response:', action.payload);
+        state.dashboardStats = {
+          pendingCount: action.payload.pendingCount || 0,
+          approvedLast30Days: action.payload.approvedLast30Days || 0,
+          rejectedLast30Days: action.payload.rejectedLast30Days || 0,
+          leaveTypeDistribution: action.payload.leaveTypeDistribution || [],
+        };
       })
       .addCase(fetchManagerDashboard.rejected, (state, action) => {
         state.loading = false;
