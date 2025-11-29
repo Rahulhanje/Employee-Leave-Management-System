@@ -92,21 +92,41 @@ export const getManagerDashboard = async (req, res) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     // Get approved requests in last 30 days
+    // Use both approvedAt and updatedAt as fallback for older records
     const approved30Days = await LeaveRequest.countDocuments({
       status: 'approved',
-      approvedAt: { $gte: thirtyDaysAgo },
+      $or: [
+        { approvedAt: { $gte: thirtyDaysAgo } },
+        { approvedAt: null, updatedAt: { $gte: thirtyDaysAgo } }
+      ]
     });
 
     // Get rejected requests in last 30 days
     const rejected30Days = await LeaveRequest.countDocuments({
       status: 'rejected',
-      approvedAt: { $gte: thirtyDaysAgo },
+      $or: [
+        { approvedAt: { $gte: thirtyDaysAgo } },
+        { approvedAt: null, updatedAt: { $gte: thirtyDaysAgo } }
+      ]
     });
+
+    // Debug: Get total approved and rejected (all time)
+    const totalApproved = await LeaveRequest.countDocuments({ status: 'approved' });
+    const totalRejected = await LeaveRequest.countDocuments({ status: 'rejected' });
+
+    // Debug: Get sample approved/rejected records to check approvedAt field
+    const sampleApproved = await LeaveRequest.findOne({ status: 'approved' }).select('status approvedAt createdAt updatedAt');
+    const sampleRejected = await LeaveRequest.findOne({ status: 'rejected' }).select('status approvedAt createdAt updatedAt');
 
     console.log('Manager Dashboard Stats:', {
       pendingCount: pendingRequests.length,
       approved30Days,
       rejected30Days,
+      totalApproved,
+      totalRejected,
+      thirtyDaysAgo: thirtyDaysAgo.toISOString(),
+      sampleApproved,
+      sampleRejected,
     });
 
     // Get leave type statistics using MongoDB aggregation
