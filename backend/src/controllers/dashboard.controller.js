@@ -33,7 +33,11 @@ export const getEmployeeDashboard = async (req, res) => {
 
     // Get user's leave balance
     const user = await User.findById(userId).select('leaveBalance');
-    const leaveBalance = user.leaveBalance;
+    const leaveBalance = {
+      sick: user.leaveBalance.sickLeave || 0,
+      casual: user.leaveBalance.casualLeave || 0,
+      vacation: user.leaveBalance.vacationLeave || 0,
+    };
 
     // Get upcoming leaves (approved leaves with future start dates)
     const today = new Date();
@@ -52,7 +56,7 @@ export const getEmployeeDashboard = async (req, res) => {
       pendingRequests,
       approvedRequests,
       rejectedRequests,
-      leaveBalance,
+      balance: leaveBalance,
       upcomingLeaves,
     };
 
