@@ -6,6 +6,8 @@ import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 // Import models (will be used in routes)
 import { User, LeaveRequest } from './models/index.js';
+// Import routes
+import authRoutes from './routes/auth.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -37,9 +39,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Routes will be added here
-// app.use('/api/auth', authRoutes);
-// app.use('/api/leaves', leaveRoutes);
+// API Routes
+app.use('/api/auth', authRoutes);
+// app.use('/api/leaves', leaveRoutes); // Coming in next task
 
 // Error handling middleware (must be last)
 app.use(notFound);
