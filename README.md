@@ -629,13 +629,15 @@ For complete API documentation, see:
 
 <table>
 <tr>
-<td width="50%">
+<td width="50%" align="center">
 <b>Login Page</b><br/>
-Modern login interface with form validation
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152205.png" alt="Login Page" width="100%"/>
+<i>Modern login interface with form validation</i>
 </td>
-<td width="50%">
+<td width="50%" align="center">
 <b>Register Page</b><br/>
-User registration with role selection
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152205 - Copy.png" alt="Register Page" width="100%"/>
+<i>User registration with role selection</i>
 </td>
 </tr>
 </table>
@@ -644,23 +646,27 @@ User registration with role selection
 
 <table>
 <tr>
-<td width="50%">
+<td width="50%" align="center">
 <b>Dashboard Overview</b><br/>
-Leave balance, pending requests, upcoming leaves
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152212.png" alt="Employee Dashboard" width="100%"/>
+<i>Leave balance, analytics charts, and upcoming leaves</i>
 </td>
-<td width="50%">
+<td width="50%" align="center">
 <b>Apply Leave</b><br/>
-Intuitive form with auto-calculate duration
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152220 - Copy.png" alt="Apply Leave" width="100%"/>
+<i>Intuitive form with auto-calculate duration</i>
 </td>
 </tr>
 <tr>
-<td width="50%">
+<td width="50%" align="center">
 <b>My Requests</b><br/>
-Complete leave history with status badges
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152243.png" alt="My Requests" width="100%"/>
+<i>Complete leave history with status badges</i>
 </td>
-<td width="50%">
-<b>Leave Details</b><br/>
-Detailed view with cancel option
+<td width="50%" align="center">
+<b>Leave Analytics</b><br/>
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152310.png" alt="Leave Analytics" width="100%"/>
+<i>Visual charts showing leave balance and request status</i>
 </td>
 </tr>
 </table>
@@ -669,15 +675,32 @@ Detailed view with cancel option
 
 <table>
 <tr>
-<td width="50%">
+<td width="50%" align="center">
 <b>Manager Dashboard</b><br/>
-Team statistics and leave distribution
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152318.png" alt="Manager Dashboard" width="100%"/>
+<i>Team statistics, leave distribution charts, and analytics</i>
 </td>
-<td width="50%">
+<td width="50%" align="center">
 <b>Pending Requests</b><br/>
-Approval queue with quick actions
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152325.png" alt="Pending Requests" width="100%"/>
+<i>Approval queue with quick approve/reject actions</i>
 </td>
 </tr>
+<tr>
+<td width="50%" align="center">
+<b>All Requests</b><br/>
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152350.png" alt="All Requests" width="100%"/>
+<i>Complete leave history with advanced filters and search</i>
+</td>
+<td width="50%" align="center">
+<b>Manager Analytics</b><br/>
+<img src="tasks_list_and_results/Screenshot 2025-11-29 152243.png" alt="Manager Analytics" width="100%"/>
+<i>Visual insights into team leave patterns and trends</i>
+</td>
+</tr>
+</table>
+
+> 📝 **Note**: All screenshots showcase the modern, responsive UI with beautiful animations and intuitive navigation.
 <tr>
 <td width="50%">
 <b>All Requests</b><br/>
