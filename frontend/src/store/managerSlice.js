@@ -53,7 +53,9 @@ export const approveRequest = createAsyncThunk(
   'manager/approve',
   async ({ leaveId, comment }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/leaves/${leaveId}/approve`, { comment });
+      const response = await axiosInstance.put(`/leaves/${leaveId}/approve`, { 
+        managerComment: comment 
+      });
       toast.success('Leave request approved!');
       return { leaveId, data: response.data.data };
     } catch (error) {
@@ -69,7 +71,9 @@ export const rejectRequest = createAsyncThunk(
   'manager/reject',
   async ({ leaveId, comment }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/leaves/${leaveId}/reject`, { comment });
+      const response = await axiosInstance.put(`/leaves/${leaveId}/reject`, { 
+        managerComment: comment 
+      });
       toast.success('Leave request rejected!');
       return { leaveId, data: response.data.data };
     } catch (error) {
