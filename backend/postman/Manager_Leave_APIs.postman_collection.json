@@ -1,0 +1,848 @@
+{
+  "info": {
+    "name": "Leave Management - Manager APIs",
+    "description": "Complete collection for testing manager leave approval and management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{manager_jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "manager_jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employee_jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "leave_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employee_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('manager_jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('manager_jwt_token', jsonData.data.token);",
+                  "    console.log('Manager token saved:', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Manager\",\n  \"email\": \"jane.manager@test.com\",\n  \"password\": \"Manager123\",\n  \"role\": \"manager\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new manager account. Token is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('manager_jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('manager_jwt_token', jsonData.data.token);",
+                  "    console.log('Manager token saved:', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane.manager@test.com\",\n  \"password\": \"Manager123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login with manager credentials. Token is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Register Employee (for testing)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('employee_jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('employee_jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('employee_id', jsonData.data.user.id);",
+                  "    console.log('Employee token saved:', jsonData.data.token);",
+                  "    console.log('Employee ID saved:', jsonData.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Employee\",\n  \"email\": \"test.employee@test.com\",\n  \"password\": \"Employee123\",\n  \"role\": \"employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register an employee for testing manager actions"
+          },
+          "response": []
+        },
+        {
+          "name": "Login Employee (for testing)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('employee_jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('employee_jwt_token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('employee_id', jsonData.data.user.id);",
+                  "    console.log('Employee token saved:', jsonData.data.token);",
+                  "    console.log('Employee ID saved:', jsonData.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test.employee@test.com\",\n  \"password\": \"Employee123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login employee for testing"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employee - Create Test Leaves",
+      "item": [
+        {
+          "name": "Apply Sick Leave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('leave_id', jsonData.data.leaveRequest.id);",
+                  "    console.log('Leave ID saved:', jsonData.data.leaveRequest.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"sick\",\n  \"startDate\": \"2025-12-01\",\n  \"endDate\": \"2025-12-03\",\n  \"reason\": \"Medical appointment and recovery needed for health checkup\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Employee applies for sick leave. Leave ID is saved for manager approval."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Casual Leave",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"casual\",\n  \"startDate\": \"2025-12-10\",\n  \"endDate\": \"2025-12-11\",\n  \"reason\": \"Personal work that needs immediate attention and completion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Employee applies for casual leave"
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Vacation Leave",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"vacation\",\n  \"startDate\": \"2025-12-20\",\n  \"endDate\": \"2025-12-25\",\n  \"reason\": \"Family vacation trip planned for holidays and quality time together\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves"
+              ]
+            },
+            "description": "Employee applies for vacation leave"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Manager - View Leaves",
+      "item": [
+        {
+          "name": "Get Pending Leaves",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "pending"
+              ]
+            },
+            "description": "Get all pending leave requests across organization"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Leaves",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "all"
+              ]
+            },
+            "description": "Get all leave requests (pending, approved, rejected)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All - Filter by Status (Pending)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/all?status=pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            },
+            "description": "Filter leaves by pending status"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All - Filter by Status (Approved)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/all?status=approved",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "approved"
+                }
+              ]
+            },
+            "description": "Filter leaves by approved status"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All - Filter by Leave Type (Sick)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/all?leaveType=sick",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "leaveType",
+                  "value": "sick"
+                }
+              ]
+            },
+            "description": "Filter leaves by sick leave type"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All - Filter by Employee",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/all?employee={{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "employee",
+                  "value": "{{employee_id}}"
+                }
+              ]
+            },
+            "description": "Get all leaves for specific employee"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All - Date Range Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/all?startDate=2025-12-01&endDate=2025-12-31",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                }
+              ]
+            },
+            "description": "Filter leaves by date range"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All - Combined Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/all?status=pending&leaveType=sick&page=1&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                },
+                {
+                  "key": "leaveType",
+                  "value": "sick"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Combined filters with pagination"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Manager - Approve/Reject",
+      "item": [
+        {
+          "name": "Approve Leave - With Comment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"managerComment\": \"Approved. Hope you feel better soon!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves/{{leave_id}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "{{leave_id}}",
+                "approve"
+              ]
+            },
+            "description": "Approve leave request with manager comment. Balance is automatically deducted."
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Leave - No Comment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves/{{leave_id}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "{{leave_id}}",
+                "approve"
+              ]
+            },
+            "description": "Approve leave without comment"
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Leave - With Comment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"managerComment\": \"Cannot approve due to critical project deadlines. Please reschedule.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves/{{leave_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "{{leave_id}}",
+                "reject"
+              ]
+            },
+            "description": "Reject leave request with manager comment"
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Leave - No Comment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves/{{leave_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "{{leave_id}}",
+                "reject"
+              ]
+            },
+            "description": "Reject leave with default comment"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Approve - Already Processed",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves/{{leave_id}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "{{leave_id}}",
+                "approve"
+              ]
+            },
+            "description": "Try to approve already approved leave - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "Approve - Invalid Leave ID",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves/invalid_id_12345/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "invalid_id_12345",
+                "approve"
+              ]
+            },
+            "description": "Try to approve with invalid ID - should fail with 404"
+          },
+          "response": []
+        },
+        {
+          "name": "Approve - Short Comment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"managerComment\": \"OK\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leaves/{{leave_id}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "{{leave_id}}",
+                "approve"
+              ]
+            },
+            "description": "Try to approve with too short comment - should fail validation"
+          },
+          "response": []
+        },
+        {
+          "name": "Employee Access Manager Endpoint",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "pending"
+              ]
+            },
+            "description": "Employee tries to access manager endpoint - should fail with 403"
+          },
+          "response": []
+        },
+        {
+          "name": "No Authentication",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leaves/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leaves",
+                "pending"
+              ]
+            },
+            "description": "Try to access manager endpoint without token - should fail with 401"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
