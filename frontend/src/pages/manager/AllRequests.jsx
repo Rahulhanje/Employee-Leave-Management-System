@@ -176,11 +176,11 @@ const AllRequests = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                            {request.employee?.name?.charAt(0).toUpperCase()}
+                            {request.user?.name?.charAt(0).toUpperCase()}
                           </div>
                           <div className="ml-3">
-                            <p className="font-semibold text-gray-900">{request.employee?.name}</p>
-                            <p className="text-xs text-gray-500">{request.employee?.email}</p>
+                            <p className="font-semibold text-gray-900">{request.user?.name}</p>
+                            <p className="text-xs text-gray-500">{request.user?.email}</p>
                           </div>
                         </div>
                       </td>

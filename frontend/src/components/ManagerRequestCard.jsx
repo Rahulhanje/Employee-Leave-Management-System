@@ -42,11 +42,11 @@ const ManagerRequestCard = ({ request, onApprove, onReject }) => {
       {/* Employee Info */}
       <div className="flex items-center gap-3 mb-4">
         <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
-          {request.employeeId?.name?.[0]?.toUpperCase() || 'E'}
+          {request.user?.name?.[0]?.toUpperCase() || 'E'}
         </div>
         <div>
-          <h3 className="font-bold text-gray-900">{request.employeeId?.name || 'Employee'}</h3>
-          <p className="text-sm text-gray-500">{request.employeeId?.email || ''}</p>
+          <h3 className="font-bold text-gray-900">{request.user?.name || 'Employee'}</h3>
+          <p className="text-sm text-gray-500">{request.user?.email || ''}</p>
         </div>
       </div>
 

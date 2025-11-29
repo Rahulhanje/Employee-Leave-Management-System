@@ -16,7 +16,7 @@ const PendingRequests = () => {
 
   const handleApprove = async (id, comment) => {
     try {
-      await dispatch(approveRequest({ id, comment })).unwrap();
+      await dispatch(approveRequest({ leaveId: id, comment })).unwrap();
       toast.success('Leave request approved successfully!');
       dispatch(fetchPendingRequests()); // Refresh list
     } catch (error) {
@@ -30,7 +30,7 @@ const PendingRequests = () => {
       return;
     }
     try {
-      await dispatch(rejectRequest({ id, comment })).unwrap();
+      await dispatch(rejectRequest({ leaveId: id, comment })).unwrap();
       toast.success('Leave request rejected');
       dispatch(fetchPendingRequests()); // Refresh list
     } catch (error) {
