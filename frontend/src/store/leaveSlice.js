@@ -105,6 +105,7 @@ const leaveSlice = createSlice({
           remainingLeaves: action.payload.remainingLeaves || 0,
           pendingRequests: action.payload.pendingRequests || 0,
           approvedRequests: action.payload.approvedRequests || 0,
+          rejectedRequests: action.payload.rejectedRequests || 0,
           upcomingLeaves: action.payload.upcomingLeaves || [],
         };
         state.balance = action.payload.balance || state.balance;

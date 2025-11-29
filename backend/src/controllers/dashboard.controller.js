@@ -104,7 +104,7 @@ export const getManagerDashboard = async (req, res) => {
     });
 
     // Get leave type statistics using MongoDB aggregation
-    const leaveTypeStats = await LeaveRequest.aggregate([
+    const leaveTypeDistribution = await LeaveRequest.aggregate([
       {
         $group: {
           _id: '$leaveType',
@@ -121,26 +121,16 @@ export const getManagerDashboard = async (req, res) => {
         },
       },
       {
-        $project: {
-          _id: 0,
-          leaveType: '$_id',
-          totalRequests: '$count',
-          approved: 1,
-          pending: 1,
-          rejected: 1,
-        },
-      },
-      {
-        $sort: { totalRequests: -1 },
+        $sort: { count: -1 },
       },
     ]);
 
     const dashboardData = {
       pendingRequests,
       pendingCount: pendingRequests.length,
-      approved30Days,
-      rejected30Days,
-      leaveTypeStats,
+      approvedLast30Days: approved30Days,
+      rejectedLast30Days: rejected30Days,
+      leaveTypeDistribution,
     };
 
     return successResponse(
