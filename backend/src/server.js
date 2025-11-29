@@ -9,6 +9,7 @@ import { User, LeaveRequest } from './models/index.js';
 // Import routes
 import authRoutes from './routes/auth.routes.js';
 import leaveRoutes from './routes/leave.routes.js';
+import dashboardRoutes from './routes/dashboard.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -43,6 +44,7 @@ app.get('/api/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/leaves', leaveRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFound);
